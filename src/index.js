@@ -38,7 +38,7 @@ bot.on('message', async (ctx) => {
 	const message = ctx.message.text?.toLowerCase();
 	if (message.startsWith('tema:')) {
 		const response = await videoService.create({
-			theme: message,
+			theme: message.replace('tema:', ''),
 			chatId: ctx.chat.id,
 			messageId: ctx.message.message_id
 		});

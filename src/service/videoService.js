@@ -30,11 +30,15 @@ export default class VideoService {
 		try {
 			const videos = await prisma.chat.findMany({
 				where: {
-					idTelegram: String(chatId),
+					idTelegramChat: String(chatId),
 					status: 'Pendente'
 				}
 			});
-			return this.videosToMessage(videos);
+			let message = '';
+			for (const video of videos) {
+				message += `${video.sugestao} => Pendente\n`;
+			}
+			return message || 'Não há videos cadastrados';
 		} catch (error) {
 			return 'Erro ao listar videos';
 		}
@@ -52,7 +56,7 @@ export default class VideoService {
 		try {
 			const hasVideo = await prisma.chat.findMany({
 				where: {
-					sugestao: theme
+					sugestao: theme?.trim()
 				}
 			});
 			if (Array.isArray(hasVideo) && hasVideo.length > 0)
@@ -64,9 +68,8 @@ export default class VideoService {
 					idTelegramMessage: String(messageId)
 				}
 			});
-			return `Tema '${video.sugestao}' cadastrado com sucesso`;
+			return `Tema '${video.sugestao.trim()}' cadastrado com sucesso`;
 		} catch (error) {
-			console.log(error);
 			return 'Erro ao criar video';
 		}
 	}
@@ -83,7 +86,6 @@ export default class VideoService {
 			console.log(videosCreated);
 			return videosCreated;
 		} catch (error) {
-			console.log(error);
 			return 'Erro ao criar video';
 		}
 	}
