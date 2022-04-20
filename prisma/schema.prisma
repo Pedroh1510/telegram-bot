@@ -1,0 +1,28 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model chat {
+  id                BigInt   @id @unique(map: "id") @default(autoincrement()) @db.UnsignedBigInt
+  sugestao          String   @unique @db.VarChar(255)
+  idTelegramChat    String   @db.Text
+  idTelegramMessage String   @db.Text
+  createdAt         DateTime @default(now())
+  status            String   @default("Pendente") @db.VarChar(255)
+  video             video?   @relation(fields: [videoId], references: [id])
+  videoId           BigInt?  @db.UnsignedBigInt
+}
+
+model video {
+  id        BigInt   @id @unique(map: "id") @default(autoincrement()) @db.UnsignedBigInt
+  url       String   @db.Text
+  idChat    String?  @db.Text
+  titulo    String   @db.Text
+  createdAt DateTime @default(now())
+  chat      chat[]
+}
