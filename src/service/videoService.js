@@ -100,17 +100,14 @@ export default class VideoService {
 	}
 
 	async getChatByVideo(videoId) {
-		try {
-			const chat = await prisma.chat.findFirst({
-				where: {
-					video: {
-						id: videoId
-					}
+		const chat = await prisma.chat.findFirst({
+			where: {
+				video: {
+					id: videoId
 				}
-			});
-			return chat;
-		} catch (error) {
-			return 'Erro ao buscar chat';
-		}
+			}
+		});
+		if (chat) return chat;
+		throw new Error('Video não encontrado');
 	}
 }
