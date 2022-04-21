@@ -50,7 +50,7 @@ bot.on('message', async (ctx) => {
 });
 bot.launch();
 
-import express, { Router } from 'express';
+import express from 'express';
 
 const app = express();
 app.use(express.json());
@@ -58,16 +58,20 @@ app.use(express.urlencoded({ extended: true }));
 app.get('/', (req, res) => res.send('Hello World!'));
 app.post('/readyVideo', async (req, res) => {
 	const { videoId } = req.body;
-	console.log(videoId);
-	const response = await videoService.getChatByVideo(videoId);
-	bot.context.telegram.sendMessage(
-		response.idTelegramChat,
-		`${response.sugestao} => ${response.status}`,
-		{
-			reply_to_message_id: response.messageId
-		}
-	);
-	res.send('ok');
+	try {
+		const response = await videoService.getChatByVideo(videoId);
+		await bot.telegram.sendMessage(
+			response.idTelegramChat,
+			`${response.sugestao} => ${response.status}`,
+			{
+				reply_to_message_id: response.idTelegramMessage
+			}
+		);
+		res.send('ok');
+	} catch (error) {
+		console.log(error);
+		res.send('error');
+	}
 });
 app.listen(CONFIG.PORT, () => console.log(`Listening on port ${CONFIG.PORT}`));
 
