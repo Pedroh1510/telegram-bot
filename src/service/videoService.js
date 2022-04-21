@@ -103,7 +103,7 @@ export default class VideoService {
 		const chat = await prisma.chat.findFirst({
 			where: {
 				video: {
-					id: videoId
+					id: parseInt(videoId)
 				}
 			}
 		});
