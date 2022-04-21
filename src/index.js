@@ -53,6 +53,8 @@ bot.launch();
 import express, { Router } from 'express';
 
 const app = express();
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 app.get('/', (req, res) => res.send('Hello World!'));
 app.post('/readyVideo', async (req, res) => {
 	const { videoId } = req.body;
