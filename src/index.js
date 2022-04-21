@@ -50,5 +50,24 @@ bot.on('message', async (ctx) => {
 });
 bot.launch();
 
+import express, { Router } from 'express';
+
+const app = express();
+app.get('/', (req, res) => res.send('Hello World!'));
+app.post('/readyVideo', async (req, res) => {
+	const { videoId } = req.body;
+	console.log(videoId);
+	const response = await videoService.getChatByVideo(videoId);
+	bot.context.telegram.sendMessage(
+		response.idTelegramChat,
+		`${response.sugestao} => ${response.status}`,
+		{
+			reply_to_message_id: response.messageId
+		}
+	);
+	res.send('ok');
+});
+app.listen(CONFIG.PORT, () => console.log(`Listening on port ${CONFIG.PORT}`));
+
 process.once('SIGINT', () => bot.stop('SIGINT'));
 process.once('SIGTERM', () => bot.stop('SIGTERM'));

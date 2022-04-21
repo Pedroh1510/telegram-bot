@@ -13,12 +13,14 @@ export default class VideoService {
 	}
 	async list({ chatId }) {
 		try {
-			const videos = await prisma.video.findMany({
+			const videos = await prisma.chat.findMany({
 				where: {
-					idChat: String(chatId)
+					idTelegramChat: String(chatId)
+				},
+				include: {
+					video: true
 				}
 			});
-
 			return this.videosToMessage(videos);
 		} catch (error) {
 			console.log(error);
@@ -46,9 +48,16 @@ export default class VideoService {
 
 	videosToMessage(videos) {
 		let message = '';
-		for (const video of videos) {
-			message += `${video.titulo} => ${video.url}\n`;
-		}
+		for (const video of videos)
+			if (video?.sugestao) {
+				if (video?.video) {
+					message += `${video.video.titulo} => ${video.video.url}\n`;
+				} else {
+					message += `${video.sugestao} => pendente\n`;
+				}
+			} else {
+				message += `${video.titulo} => ${video.url}\n`;
+			}
 		return message || 'Não há videos cadastrados';
 	}
 
@@ -87,6 +96,21 @@ export default class VideoService {
 			return videosCreated;
 		} catch (error) {
 			return 'Erro ao criar video';
+		}
+	}
+
+	async getChatByVideo(videoId) {
+		try {
+			const chat = await prisma.chat.findFirst({
+				where: {
+					video: {
+						id: videoId
+					}
+				}
+			});
+			return chat;
+		} catch (error) {
+			return 'Erro ao buscar chat';
 		}
 	}
 }
