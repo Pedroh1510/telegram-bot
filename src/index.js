@@ -59,9 +59,7 @@ app.get('/', (req, res) => res.send('Hello World!'));
 app.post('/readyVideo', async (req, res) => {
 	const { videoId } = req.body;
 	try {
-		console.log(req.body);
 		const response = await videoService.getChatByVideo(videoId);
-		console.log(response);
 		await bot.telegram.sendMessage(
 			response.idTelegramChat,
 			`${response.sugestao} => ${response.status}`,
