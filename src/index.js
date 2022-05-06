@@ -2,7 +2,6 @@ import { Telegraf } from 'telegraf';
 
 import CONFIG from './config/env.js';
 import VideoService from './service/videoService.js';
-import YoutubeService from './service/youtubeService.js';
 
 const bot = new Telegraf(CONFIG.BOT_TOKEN, {
 	telegram: {
@@ -20,6 +19,7 @@ exemplo: Tema: sistemas distribuidos
 `;
 
 const videoService = new VideoService();
+const youtubeService = new YoutubeService();
 
 bot.start((ctx) => ctx.reply(`${help}`));
 bot.help((ctx) => ctx.reply(help));
@@ -51,6 +51,8 @@ bot.on('message', async (ctx) => {
 bot.launch();
 
 import express from 'express';
+import asyncError from 'express-async-handler';
+import YoutubeService from './service/youtubeService.js';
 
 const app = express();
 app.use(express.json());
@@ -73,6 +75,24 @@ app.post('/readyVideo', async (req, res) => {
 		res.send('error');
 	}
 });
+app.post('/getAllVideos', async (req, res) => {
+	try {
+		const response = await youtubeService.listAllVideos();
+		res.send(await videoService.resgisterVideos(response));
+	} catch (error) {
+		console.log(error);
+		res.send('error');
+	}
+});
+
+app.use((err, req, res, next) => {
+	if (err) {
+		console.log(err);
+		return res.status(500).send('Internal Server Error');
+	}
+	next();
+});
+
 app.listen(CONFIG.PORT, () => console.log(`Listening on port ${CONFIG.PORT}`));
 
 process.once('SIGINT', () => bot.stop('SIGINT'));

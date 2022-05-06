@@ -89,12 +89,21 @@ export default class VideoService {
 				url: video.url,
 				titulo: video.title
 			}));
-			const videosCreated = await prisma.video.createMany({
-				data: videosToRegister
-			});
-			console.log(videosCreated);
-			return videosCreated;
+			for await (const video of videosToRegister) {
+				const hasVideo = await prisma.video.findFirst({
+					where: {
+						url: video.url
+					}
+				});
+				if (!hasVideo) {
+					await prisma.video.create({
+						data: video
+					});
+				}
+			}
+			return 'Videos registrados com sucesso';
 		} catch (error) {
+			console.log(error);
 			return 'Erro ao criar video';
 		}
 	}
