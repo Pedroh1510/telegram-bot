@@ -26,9 +26,18 @@ const getMessage = async (message, sessionId) => {
 		response.result.output &&
 		Array.isArray(response.result.output.generic)
 	) {
-		const { text } = response.result.output.generic[0];
-		console.log(response.result.output);
-		return text;
+		const { text, title, suggestions } = response.result.output.generic[0];
+		if (text) return text;
+		if (title && Array.isArray(suggestions))
+			return `${title}\n${suggestions
+				.map((suggestion) =>
+					Array.isArray(suggestion.output.generic) &&
+					suggestion.output.generic.length >= 1
+						? suggestion.output.generic[0].text
+						: suggestion.output.generic.text
+				)
+				.filter((suggestion) => !!suggestion)
+				.join('\n')}`;
 	}
 	return 'Desculpe, ocorreu um erro, tente novamente mais tarde';
 };
