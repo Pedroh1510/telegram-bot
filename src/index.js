@@ -34,10 +34,6 @@ bot.command('listPending', async (ctx) => {
 	ctx.reply(await videoService.listPending({ chatId: ctx.chat.id }));
 });
 
-const qqq = await assistant.createSession({
-	assistantId: CONFIG.ASSISTANT_WORKSPACE_ID
-});
-
 bot.on('message', async (ctx) => {
 	const message = ctx.message.text?.toLowerCase();
 	if (message?.startsWith('tema:')) {
@@ -50,36 +46,15 @@ bot.on('message', async (ctx) => {
 			reply_to_message_id: ctx.message.message_id
 		});
 	}
-
-	try {
-		assistant
-			.message({
-				input: { text: message },
-
-				assistantId: CONFIG.ASSISTANT_WORKSPACE_ID,
-				sessionId: qqq?.result?.session_id
-			})
-			.then((response) => {
-				if (
-					response &&
-					response.result &&
-					response.result.output &&
-					Array.isArray(response.result.output.generic)
-				) {
-					const { text } = response.result.output.generic[0];
-					ctx.reply(text);
-				}
-			});
-	} catch (err) {
-		ctx.reply('Desculoe, ocorreu um erro, tente novamente mais tarde');
-	}
+	const assistantMessage = await getAssistantMessage(message);
+	ctx.reply(assistantMessage);
 });
 bot.launch();
 
 import express from 'express';
 import asyncError from 'express-async-handler';
 import YoutubeService from './service/youtubeService.js';
-import { assistant } from './infra/watson.js';
+import { getAssistantMessage } from './infra/watson.js';
 
 const app = express();
 app.use(express.json());
